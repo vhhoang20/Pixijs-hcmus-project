@@ -2,129 +2,134 @@
 const app = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight });
 document.body.appendChild(app.view);
 
-// Tạo đường đua và xe
-let track;
-let car;
+const carTexture = PIXI.Texture.from('data/car.png');
+const obstacleTexture = PIXI.Texture.from('data/obstacle.png');
+const trackTexture = PIXI.Texture.from('data/track.png');
 
-// Tải các tài nguyên
-app.loader.add('track', './data/track.png')
-          .add('car', './data/car.png')
-          .load(setup);
+const obstacles = [];
+setup();
 
 function setup() {
-  // Tạo đường đua
-  track = new PIXI.Sprite(app.loader.resources['track'].texture);
-  track.width = app.renderer.width;
-  track.height = app.renderer.height;
-  app.stage.addChild(track);
+	// Tạo đường đua
+	track = new PIXI.Sprite(trackTexture);
+	// Tính toán kích thước cột và vị trí của 4 cột giữa
+	columnWidth = app.renderer.width / 6;
+	columnStart = columnWidth;
+	columnEnd = columnWidth * 5;
 
-  // Tạo xe
-  car = new PIXI.Sprite(app.loader.resources['car'].texture);
-  car.position.set(app.renderer.width / 2, app.renderer.height - 50);
-  car.anchor.set(0.5);
-  app.stage.addChild(car);
+	// Thiết lập vị trí và kích thước của sprite track
+	track.position.set(columnStart, 0);
+	track.width = columnEnd - columnStart;
+	track.height = app.renderer.height;
 
-  // Tạo menu
-  menu = new PIXI.Container();
-  app.stage.addChild(menu);
-  let menuStyle = new PIXI.TextStyle({
-    fill: 0x00000,
-    fontSize: 36,
-    fontFamily: "Arial",
-    fontStyle: "bold"
-  })
-  // Option 1: Play
-  opt1 = new PIXI.Text("Play");
-  opt1.anchor.set(0.5);
-  opt1.x = app.view.width/2;
-  opt1.y = app.view.height/2 - 30;
-  opt1.style = menuStyle;
-  opt1.interactive = true;
-  opt1.click = function(e) {menu.visible = false}
-  // Option 2: Instruction
-  opt2 = new PIXI.Text("Instruction");
-  opt2.anchor.set(0.5);
-  opt2.x = app.view.width/2;
-  opt2.y = app.view.height/2 + 10;
-  opt2.style = menuStyle;
-  opt2.interactive = true;
-  opt2.click = function(e) {menu.visible = false; instruction.visible = true}
+	// Thêm sprite track vào stage
+	app.stage.addChild(track);
 
-  menu.addChild(opt1, opt2)
+	car = new PIXI.Sprite(carTexture);
+	car.width = 150;
+	car.height = 150;
+	car.position.set(app.renderer.width / 2, app.renderer.height - 50);
+	car.anchor.set(0.5);
+	app.stage.addChild(car);
+
+	for (let i = 0; i < 3; i++) {
+		obstacle = new PIXI.Sprite(obstacleTexture);
+		obstacle.width = 100;
+		obstacle.height = 100;
+		obstacle.position.set(app.renderer.width / (i+2), -obstacle.height); // Đặt vị trí ban đầu của đối tượng
+
+		obstacles.push(obstacle); // Thêm đối tượng vào mảng
+
+		app.stage.addChild(obstacle); // Thêm đối tượng vào stage
+	}
+
+	// // obstacles.push(obstacle);
+	app.ticker.add(() => {
+		for (const obstacle of obstacles) {
+			// Di chuyển đối tượng xuống dưới với tốc độ cố định
+			obstacle.y += 5;
+	
+			// Kiểm tra nếu đối tượng đi qua màn hình, đặt lại vị trí ban đầu
+			if (obstacle.y > app.renderer.height) {
+				obstacle.y = -obstacle.height;
+			}
+		}
+	});
+
+	app.ticker.add(gameLoop);
+
+	// Bắt sự kiện bàn phím
+	document.addEventListener('keydown', onKeyDown);
+	document.addEventListener('keyup', onKeyUp);
+}
+
+function createObstacle() {
+	if (obstacles.length >= 3) {
+	  return; // Không tạo thêm xe nếu đã đạt giới hạn
+	}
   
-  // Instruction option display
-  instruction = new PIXI.Container();
-  instruction.visible = false
-  app.stage.addChild(instruction);
-  guide = new PIXI.Text("Press left and right arrow to move the car and try to evade the obstacles");
-  guide.anchor.set(0.5)
-  guide.x = app.view.width/2;
-  guide.y = app.view.height/2 - 60;
-  guide.style = menuStyle;
-
-  play = new PIXI.Text("Play");
-  play.anchor.set(0.5);
-  play.x = app.view.width/2;
-  play.y = app.view.height/2;
-  play.style = menuStyle;
-  play.interactive = true;
-  play.click = function(e) {instruction.visible = false}
-  instruction.addChild(guide, play)
-
-  // Bắt đầu vòng lặp chính
-  app.ticker.add(gameLoop);
-
-  // Bắt sự kiện bàn phím
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
-  // Bắt sự kiện chuột
-  //app.view.addEventListener('mousemove', onMouseMove);
+	const obstacle = new PIXI.Sprite(obstacleTexture);
+	obstacle.anchor.set(0.5);
+	obstacle.position.set(Math.random() * (app.renderer.width - 100) + 50, 100);
+	app.stage.addChild(obstacle);
+	obstacles.push(obstacle);
+}
+  
+function updateObstacles() {
+	for (let i = obstacles.length - 1; i >= 0; i--) {
+	  const obstacle = obstacles[i];
+	  obstacle.y += 5; // Tốc độ di chuyển của obstacles
+  
+	  // Kiểm tra va chạm giữa car và obstacle
+	  if (isCollision(car, obstacle)) {
+		// Xử lý va chạm
+		console.log('Collision detected');
+	  }
+  
+	  // Kiểm tra nếu obstacle đi qua màn hình
+	  if (obstacle.y > app.renderer.height + 50) {
+		app.stage.removeChild(obstacle);
+		obstacles.splice(i, 1);
+	  }
+	}
 }
 
 let isLeftKeyDown = false;
 let isRightKeyDown = false;
 
 function onKeyDown(event) {
-  if (event.key === 'ArrowLeft') {
-    isLeftKeyDown = true;
-  } else if (event.key === 'ArrowRight') {
-    isRightKeyDown = true;
-  }
-  if(event.key === 'Escape') {
-    menu.visible = true;
-  }
+	if (event.key === 'ArrowLeft') {
+		isLeftKeyDown = true;
+	} else if (event.key === 'ArrowRight') {
+		isRightKeyDown = true;
+	}
 }
 
 function onKeyUp(event) {
-  if (event.key === 'ArrowLeft') {
-    isLeftKeyDown = false;
-  } else if (event.key === 'ArrowRight') {
-    isRightKeyDown = false;
-  }
-}
-
-function onMouseMove(event) {
-  const mouseX = event.clientX;
-  const carX = mouseX - app.view.offsetLeft;
-
-  car.x = carX;
+	if (event.key === 'ArrowLeft') {
+		isLeftKeyDown = false;
+	} else if (event.key === 'ArrowRight') {
+		isRightKeyDown = false;
+	}
 }
 
 function gameLoop(delta) {
-  // Di chuyển xe dựa trên sự kiện bàn phím
-  if (isLeftKeyDown) {
-    car.x -= delta * 5;
-  } else if (isRightKeyDown) {
-    car.x += delta * 5;
-  }
+	// Di chuyển xe dựa trên sự kiện bàn phím
+	if (isLeftKeyDown) {
+		car.x -= delta * 15;
+	} else if (isRightKeyDown) {
+		car.x += delta * 15;
+	}
 
-  // Giới hạn di chuyển của xe trong phạm vi đường đua
-  if (car.x < 0) {
-    car.x = 0;
-  } else if (car.x > app.renderer.width) {
-    car.x = app.renderer.width;
-  }
+	// Kiểm tra vị trí xe và giới hạn trong 6 cột
+	const laneWidth = app.renderer.width / 6;
+	const minLane = laneWidth * 1.5; // Cột đầu tiên
+	const maxLane = laneWidth * 5; // Cột cuối cùng
+
+	// Giới hạn di chuyển của xe trong phạm vi đường đua
+	if (car.x < minLane) {
+		car.x = minLane;
+	} else if (car.x > maxLane) {
+		car.x = maxLane;
+	}
 }
-
-//Chạy
-setup()
