@@ -30,7 +30,7 @@ function setup() {
   let menuStyle = new PIXI.TextStyle({
     fill: 0x00000,
     fontSize: 36,
-    fontFamily: "Arial",
+    fontFamily: "Comic Sans MS",
     fontStyle: "bold"
   })
   menuBox = PIXI.Sprite.from(PIXI.Texture.WHITE);
@@ -39,7 +39,7 @@ function setup() {
   menuBox.anchor.set(0.5);
   menuBox.x = app.view.width/2;
   menuBox.y = app.view.height/2;
-  menuBox.tint = 0xff1919;
+  menuBox.tint = 0xff8c19;
   // menuBox.beginFill(0xFFFF00);
   // menuBox.lineStyle(5, 0xFFFF00);
   // menuBox.drawRect(app.renderer.width / 2 -40, app.renderer.width / 2 +40, app.renderer.height - 30, app.renderer.height +30);
@@ -136,6 +136,3 @@ function gameLoop(delta) {
     car.x = app.renderer.width;
   }
 }
-
-//Chạy
-setup()
