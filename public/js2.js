@@ -33,6 +33,17 @@ function setup() {
     fontFamily: "Arial",
     fontStyle: "bold"
   })
+  menuBox = PIXI.Sprite.from(PIXI.Texture.WHITE);
+  menuBox.width = 300;
+  menuBox.height = 200;
+  menuBox.anchor.set(0.5);
+  menuBox.x = app.view.width/2;
+  menuBox.y = app.view.height/2;
+  menuBox.tint = 0xff1919;
+  // menuBox.beginFill(0xFFFF00);
+  // menuBox.lineStyle(5, 0xFFFF00);
+  // menuBox.drawRect(app.renderer.width / 2 -40, app.renderer.width / 2 +40, app.renderer.height - 30, app.renderer.height +30);
+  menu.addChild(menuBox);
   // Option 1: Play
   opt1 = new PIXI.Text("Play");
   opt1.anchor.set(0.5);
