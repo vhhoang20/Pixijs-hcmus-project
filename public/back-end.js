@@ -6,7 +6,6 @@ app.stage.addChild(container);
 
 const carTexture = PIXI.Texture.from('data/car.png');
 const obstacleTexture = PIXI.Texture.from('data/obstacle.png');
-const trackTexture = PIXI.Texture.from('data/track.png');
 let obstacles = [];
 
 const columnWidth = app.renderer.width / 12;
@@ -43,25 +42,6 @@ function setup() {
 	obstacle_interval = setInterval(createObstacle, 2000);
 	app.ticker.add(gameLoop);
 	app.ticker.add(moving_obstacle);
-	// app.ticker.add(() => {
-	// 	for (const obstacle of obstacles) {
-	// 		// Di chuyển đối tượng xuống dưới với tốc độ cố định
-	// 		obstacle.y += car_speed;
-			
-	// 		// Kiểm tra nếu đối tượng đi qua màn hình, đặt lại vị trí ban đầu
-	// 		if (obstacle.y > app.renderer.height) {
-	// 			// Xóa các đối tượng vật cản trước đó khỏi container
-	// 			container.removeChild(obstacle);
-	// 			obstacles.splice(obstacles.indexOf(obstacle), 1);
-	// 		}
-
-	// 		// Kiểm tra va chạm với xe
-	// 		if (checkCollision(car, obstacle)) {
-	// 			gameOver();
-	// 		}
-	// 	}
-	// });
-	
 
 	// Bắt sự kiện bàn phím
 	document.addEventListener('keydown', onKeyDown);
@@ -120,7 +100,7 @@ function divide_column() {
 
 	// Tạo đường kẻ giữa các cột
 	const lineGraphics = new PIXI.Graphics();
-	lineGraphics.lineStyle(5, 0xFF0000); // Màu và độ dày đường kẻ
+	lineGraphics.lineStyle(5, 0xdbd802); // Màu và độ dày đường kẻ
 	lineGraphics.moveTo(columnWidth * 5, 0);
 	lineGraphics.lineTo(columnWidth * 5, columnHeight);
 	lineGraphics.moveTo(columnWidth * 6, 0);
@@ -175,21 +155,21 @@ function gameOver() {
 	clearInterval(obstacle_interval);
 
 	isGameOver = true;
-  
+
 	// Display game over message
 	const gameOverText = new PIXI.Text('Game Over', {
-	  fill: 'black',
+	  fill: 'red',
 	  fontSize: 48,
 	  fontWeight: 'bold',
 	});
 	gameOverText.anchor.set(0.5);
-	gameOverText.position.set(app.renderer.width / 2, app.renderer.height / 2);
+	gameOverText.position.set(app.renderer.width / 2, app.renderer.height / 3);
 	container.addChild(gameOverText);
   
 	// Create a play again button
 	const playAgainButton = new PIXI.Graphics();
-	playAgainButton.beginFill(0xCCCCCC);
-	playAgainButton.drawRect(app.renderer.width / 2 - 100, app.renderer.height / 2 + 50, 200, 50);
+	playAgainButton.beginFill(0x228b22);
+	playAgainButton.drawRect(app.renderer.width / 2 - 100, app.renderer.height / 3 + 50, 200, 50);
 	playAgainButton.endFill();
   
 	const playAgainText = new PIXI.Text('Play Again', {
@@ -198,7 +178,7 @@ function gameOver() {
 	  fontWeight: 'bold',
 	});
 	playAgainText.anchor.set(0.5);
-	playAgainText.position.set(app.renderer.width / 2, app.renderer.height / 2 + 75);
+	playAgainText.position.set(app.renderer.width / 2, app.renderer.height / 3 + 75);
 	container.addChild(playAgainButton, playAgainText);
   
 	// Add click event listener to play again button
@@ -222,21 +202,6 @@ function resetGame() {
 	document.removeEventListener('keyup', onKeyUp);
 	car_speed = 5;
 	setup();
-	// // Clear the car's position and key states
-	// car.position.set(app.renderer.width / 2, app.renderer.height - 100);
-	// isLeftKeyDown = false;
-	// isRightKeyDown = false;
-  
-	// // Add event listeners for keydown and keyup events
-	// document.addEventListener('keydown', onKeyDown);
-	// document.addEventListener('keyup', onKeyUp);
-  
-	// // Re-create game elements and add them to the container
-	// divide_column();
-	// container.addChild(car);
-  
-	// // Start game loop and obstacle creation interval
-	// app.ticker.add(gameLoop);
 }
   
 // Điều khiển xe di chuyển
